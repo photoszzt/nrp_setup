@@ -7,6 +7,11 @@ spec:
   running: false
   template:
     spec:
+      tolerations:
+      - key: "nautilus.io/prism-center"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -15,13 +20,13 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - alveo.sdsu.edu
+                - prism-01.sdsc.optiputer.net
       domain:
         ioThreadsPolicy: auto
         cpu:
           cores: 8
           model: host-passthrough
-          isolateEmulatorThread: true
+          isolateEmulatorThread: false
           dedicatedCpuPlacement: true
         devices:
           autoattachGraphicsDevice: false
