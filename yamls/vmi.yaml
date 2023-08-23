@@ -1,0 +1,73 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: vm-${NUM}
+  namespace: ${NAMESPACE}
+spec:
+  running: false
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - alveo.sdsu.edu
+      domain:
+        ioThreadsPolicy: auto
+        cpu:
+          cores: 8
+          model: host-passthrough
+          isolateEmulatorThread: true
+          dedicatedCpuPlacement: true
+        devices:
+          autoattachGraphicsDevice: false
+          autoattachSerialConsole: true
+          disks:
+            - disk:
+                bus: virtio
+              name: harddrive
+            - name: virtiocontainerdisk
+              disk:
+                bus: virtio
+            - disk:
+                bus: virtio
+              name: cloudinit
+          rng: {}
+          interfaces:
+          - name: default
+            masquerade: {}
+            ports:
+              - port: 22
+        resources:
+          requests:
+            memory: 16Gi
+          limits:
+            memory: 16Gi
+      accessCredentials:
+      - sshPublicKey:
+          source:
+            secret:
+              secretName: ${SECRET_NAME}
+          propagationMethod:
+            configDrive: {}
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - containerDisk:
+            image: quay.io/containerdisks/ubuntu:22.04
+          name: virtiocontainerdisk
+        - name: harddrive
+          emptyDisk:
+            capacity: 16Gi
+        - cloudInitConfigDrive:
+            userData: |-
+              #cloud-config
+              users:
+                - name: admin
+                  sudo: ALL=(ALL) NOPASSWD:ALL
+          name: cloudinit
