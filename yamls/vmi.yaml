@@ -25,9 +25,8 @@ spec:
         ioThreadsPolicy: auto
         cpu:
           cores: 8
-          model: host-passthrough
           isolateEmulatorThread: false
-          dedicatedCpuPlacement: true
+          dedicatedCpuPlacement: false
         devices:
           autoattachGraphicsDevice: false
           autoattachSerialConsole: true
